@@ -3,92 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>AIRM Drone Command</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React and ReactDOM CDN -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Axios for HTTP requests -->
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
-    <!-- Monaco Editor CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
     <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 5px #00FF00; }
-            50% { box-shadow: 0 0 15px #00FF00; }
-            100% { box-shadow: 0 0 5px #00FF00; }
-        }
-        @keyframes scan {
-            0% { background-position: 0 0; }
-            100% { background-position: 100% 0; }
-        }
-        @keyframes futuristic-glow {
-            0% { box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; }
-            50% { box-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00; }
-            100% { box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; }
-        }
-        .futuristic-border {
-            border: 2px solid #00FFFF;
-            box-shadow: 0 0 10px #00FFFF;
-        }
-        .scan-effect {
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
-            animation: scan 2s linear infinite;
-        }
-        .futuristic-button {
-            @apply bg-gray-700 text-[#00FFFF] border border-[#00FF00] p-2 rounded-lg transition-all duration-300;
-            box-shadow: 0 0 5px #00FFFF;
-            animation: futuristic-glow 2s infinite;
-        }
-        .futuristic-button:hover {
-            @apply bg-[#00FF00] text-black;
-            box-shadow: 0 0 15px #00FF00;
-        }
-        .futuristic-button.active {
-            @apply bg-[#00FF00] text-black;
-            box-shadow: 0 0 20px #00FF00;
-        }
-        .gamepad {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            width: fit-content;
-            margin: 20px auto 0;
-        }
-        .gamepad-row {
-            display: flex;
-            gap: 10px;
-        }
-        .gamepad-button {
-            @apply bg-gray-700 text-[#00FFFF] border border-[#00FF00] p-4 rounded-lg transition-all duration-300;
-            box-shadow: 0 0 5px #00FFFF;
-            cursor: pointer;
-            font-size: 16px;
-            min-width: 80px;
-            text-align: center;
-        }
-        .gamepad-button:hover {
-            @apply bg-[#00FF00] text-black;
-            box-shadow: 0 0 15px #00FF00;
-        }
-        .dpad {
-            display: grid;
-            grid-template-areas:
-                "up up up"
-                "left down right"
-                "empty empty empty";
-            gap: 5px;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 5px #00FF00; } 50% { box-shadow: 0 0 15px #00FF00; } 100% { box-shadow: 0 0 5px #00FF00; } }
+        @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 100% 0; } }
+        @keyframes futuristic-glow { 0% { box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; } 50% { box-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00; } 100% { box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF; } }
+        .futuristic-border { border: 2px solid #00FFFF; box-shadow: 0 0 10px #00FFFF; }
+        .scan-effect { background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent); animation: scan 2s linear infinite; }
+        .futuristic-button { @apply bg-gray-700 text-[#00FFFF] border border-[#00FF00] p-2 rounded-lg transition-all duration-300; box-shadow: 0 0 5px #00FFFF; animation: futuristic-glow 2s infinite; }
+        .futuristic-button:hover { @apply bg-[#00FF00] text-black; box-shadow: 0 0 15px #00FF00; }
+        .futuristic-button.active { @apply bg-[#00FF00] text-black; box-shadow: 0 0 20px #00FF00; }
+        .gamepad { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; background: rgba(0, 0, 0, 0.5); border-radius: 10px; width: fit-content; margin: 20px auto 0; }
+        .gamepad-row { display: flex; gap: 10px; }
+        .gamepad-button { @apply bg-gray-700 text-[#00FFFF] border border-[#00FF00] p-4 rounded-lg transition-all duration-300; box-shadow: 0 0 5px #00FFFF; cursor: pointer; font-size: 16px; min-width: 80px; text-align: center; }
+        .gamepad-button:hover { @apply bg-[#00FF00] text-black; box-shadow: 0 0 15px #00FF00; }
+        .dpad { display: grid; grid-template-areas: "up up up" "left down right" "empty empty empty"; gap: 5px; }
         .dpad .up { grid-area: up; }
         .dpad .left { grid-area: left; }
         .dpad .down { grid-area: down; }
@@ -99,365 +34,6 @@
     <div id="root" class="min-h-screen"></div>
 
     <script type="text/babel">
-        // Code blocks as per the provided Python code
-        const codeBlocks = {
-            'Imports': `import machine
-import utime
-import math
-import socket
-import network
-from machine import I2C, Pin, PWM, ADC`,
-            'Logger': `class Logger:
-    def __init__(self, max_entries=50):
-        self.logs = [None] * max_entries
-        self.max_entries = max_entries
-        self.index = 0
-        self.count = 0
-    
-    def log(self, message):
-        timestamp = utime.ticks_ms()
-        self.logs[self.index] = (timestamp, message)
-        self.index = (self.index + 1) % self.max_entries
-        self.count += 1
-    
-    def get_logs(self, num_entries=None):
-        if num_entries is None or num_entries > self.max_entries:
-            num_entries = min(self.count, self.max_entries)
-        start = (self.index - num_entries) % self.max_entries if self.count > self.max_entries else 0
-        result = []
-        for i in range(num_entries):
-            idx = (start + i) % self.max_entries
-            if self.logs[idx] is not None:
-                result.append(self.logs[idx])
-        return result
-    
-    def clear(self):
-        self.logs = [None] * self.max_entries
-        self.index = 0
-        self.count = 0`,
-            'MPU6050': `class MPU6050:
-    def __init__(self, i2c, addr=0x68, logger=None):
-        self.i2c = i2c
-        self.addr = addr
-        self.logger = logger
-        self.i2c.writeto_mem(self.addr, 0x6B, b'\x00')
-        self.accel_offsets = [0, 0, 0]
-        self.gyro_offsets = [0, 0, 0]
-    
-    def read_raw_data(self, reg):
-        try:
-            high = self.i2c.readfrom_mem(self.addr, reg, 1)[0]
-            low = self.i2c.readfrom_mem(self.addr, reg + 1, 1)[0]
-            value = (high << 8) + low
-            return value - 65536 if value > 32768 else value
-        except:
-            if self.logger:
-                self.logger.log(f"I2C error at reg {reg}")
-            print("I2C error at reg", reg)
-            return 0
-    
-    def calibrate(self, samples=1000):
-        if self.logger:
-            self.logger.log("Starting MPU6050 calibration")
-        print("Calibrating MPU6050... Keep still.")
-        accel_data = [[], [], []]
-        gyro_data = [[], [], []]
-        
-        for _ in range(samples):
-            accel_data[0].append(self.read_raw_data(0x3B) / 16384.0)
-            accel_data[1].append(self.read_raw_data(0x3D) / 16384.0)
-            accel_data[2].append(self.read_raw_data(0x3F) / 16384.0)
-            gyro_data[0].append(self.read_raw_data(0x43) / 131.0)
-            gyro_data[1].append(self.read_raw_data(0x45) / 131.0)
-            gyro_data[2].append(self.read_raw_data(0x47) / 131.0)
-            utime.sleep_ms(1)
-        
-        self.accel_offsets = [sum(accel_data[i]) / samples for i in range(3)]
-        self.accel_offsets[2] -= 1
-        self.gyro_offsets = [sum(gyro_data[i]) / samples for i in range(3)]
-        
-        accel_var = [sum((x - self.accel_offsets[i])**2 for x in accel_data[i]) / samples for i in range(3)]
-        gyro_var = [sum((x - self.gyro_offsets[i])**2 for x in gyro_data[i]) / samples for i in range(3)]
-        
-        success = all(var < 0.01 for var in accel_var) and all(var < 25.0 for var in gyro_var)
-        if self.logger:
-            self.logger.log(f"Calibration {'Successful' if success else 'Failed'} - Accel Offsets: {self.accel_offsets}, Gyro Offsets: {self.gyro_offsets}")
-        print("Calibration", "Successful" if success else "Failed", "Accel Offsets", self.accel_offsets, "Gyro Offsets", self.gyro_offsets)
-        return success
-    
-    def get_data(self):
-        accel = [(self.read_raw_data(0x3B + i*2) / 16384.0) - self.accel_offsets[i] for i in range(3)]
-        gyro = [(self.read_raw_data(0x43 + i*2) / 131.0) - self.gyro_offsets[i] for i in range(3)]
-        return accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2]`,
-            'PID': `class PID:
-    def __init__(self, kp, ki, kd, integral_limit=50):
-        self.kp, self.ki, self.kd = kp, ki, kd
-        self.integral = 0
-        self.prev_error = 0
-        self.integral_limit = integral_limit
-    
-    def update(self, target, current, dt):
-        error = target - current
-        self.integral = max(min(self.integral + error * dt, self.integral_limit), -self.integral_limit)
-        derivative = (error - self.prev_error) / dt
-        output = self.kp * error + self.ki * self.integral + self.kd * derivative
-        self.prev_error = error
-        return output
-    
-    def set_gains(self, kp, ki, kd):
-        self.kp, self.ki, self.kd = kp, ki, kd`,
-            'VirtualBrain': `class VirtualBrain:
-    def __init__(self, logger=None):
-        self.angle_history = [[], [], []]
-        self.vel_history = [[], [], []]
-        self.last_troub Ascendantly = React.useState(null);
-        self.last_troubleshoot = utime.ticks_ms()
-        self.TROUBLESHOOT_INTERVAL = 2000
-        self.warnings = []
-        self.logger = logger
-    
-    def update(self, angles, vel, dt):
-        for i in range(3):
-            self.angle_history[i].append(angles[i])
-            self.vel_history[i].append(vel[i])
-            if len(self.angle_history[i]) > 100:
-                self.angle_history[i].pop(0)
-                self.vel_history[i].pop(0)
-    
-    def troubleshoot(self, angles, vel, throttle, pids, dt):
-        current_time = utime.ticks_ms()
-        if utime.ticks_diff(current_time, self.last_troubleshoot) < self.TROUBLESHOOT_INTERVAL:
-            return self.warnings
-        
-        self.warnings = []
-        
-        for i, axis in enumerate(["Roll", "Pitch"]):
-            if len(self.angle_history[i]) >= 50:
-                diffs = [self.angle_history[i][j] - self.angle_history[i][j-1] for j in range(1, len(self.angle_history[i]))]
-                crossings = sum(1 for j in range(1, len(diffs)) if diffs[j] * diffs[j-1] < 0 and abs(diffs[j]) > 0.5)
-                osc_freq = crossings / (len(diffs) * dt)
-                if osc_freq > 5:
-                    warning = f"High {axis} oscillation ({osc_freq:.1f} Hz). Reducing kp."
-                    self.warnings.append(warning)
-                    if self.logger:
-                        self.logger.log(warning)
-                    print(warning)
-                    pids[i].set_gains(max(pids[i].kp * 0.9, 0.1), pids[i].ki, pids[i].kd)
-        
-        if abs(angles[2]) > 45 and throttle > 0:
-            warning = f"Excessive yaw drift: {angles[2]:.1f}"
-            self.warnings.append(warning)
-            if self.logger:
-                self.logger.log(warning)
-            print(warning)
-        
-        if len(self.vel_history[0]) >= 50 and throttle > 0:
-            vel_var = sum((v - sum(self.vel_history[0]) / len(self.vel_history[0]))**2 for v in self.vel_history[0]) / len(self.vel_history[0])
-            if vel_var > 0.5:
-                warning = "Height instability detected. Adjusting height PID."
-                self.warnings.append(warning)
-                if self.logger:
-                    self.logger.log(warning)
-                print(warning)
-                pids[3].set_gains(pids[3].kp * 1.1, pids[3].ki, pids[3].kd)
-        
-        self.last_troubleshoot = current_time
-        return self.warnings`,
-            'MotorControl': `MOTOR_PINS = [18, 13, 28, 1]
-motors = [PWM(Pin(pin)) for pin in MOTOR_PINS]
-for motor in motors:
-    motor.freq(500)
-MOTOR_TRIM = [0, 0, 0, 0]
-
-def set_motor_speeds(m1, m2, m3, m4):
-    speeds = [int(min(max(m + MOTOR_TRIM[i], 0), 65535)) for i, m in enumerate([m1, m2, m3, m4])]
-    for i, motor in enumerate(motors):
-        motor.duty_u16(speeds[i])`,
-            'BatteryMonitoring': `battery_adc = ADC(Pin(26))
-def get_battery_percentage():
-    voltage = (battery_adc.read_u16() / 65535) * 3.3 * 2
-    return min(max(int((voltage - 3.0) / (4.2 - 3.0) * 100), 0), 100)`,
-            'TCPServer': `def start_tcp_server():
-    wlan = network.WLAN(network.AP_IF)
-    wlan.active(True)
-    wlan.config(essid='PicoW', password='pico1234')
-    print("Wi-Fi AP:", wlan.ifconfig())
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('', 8080))
-    s.listen(1)
-    return s`,
-            'Utilities': `def complementary_filter(accel_angle, gyro_rate, prev_angle, dt):
-    return 0.98 * (prev_angle + gyro_rate * dt) + 0.02 * accel_angle
-
-def parse_command(data, throttle, targets):
-    if not data:
-        return throttle, targets
-    cmd = data.strip()
-    step = 10
-    t, p, r, y, h, m = targets
-    
-    if cmd == "Throttle Up": t, h = min(t + step, 100), h + 0.1
-    elif cmd == "Throttle Down": t, h = max(t - step, 0), h - 0.1
-    elif cmd == "Pitch Up": p = min(p + step, 45)
-    elif cmd == "Pitch Down": p = max(p - step, -45)
-    elif cmd == "Roll Left": r = max(r - step, -45)
-    elif cmd == "Roll Right": r = min(r + step, 45)
-    elif cmd == "Yaw Left": y -= step
-    elif cmd == "Yaw Right": y += step
-    elif cmd in ["Sluggish", "Neutral", "Agile"]: m = {"Sluggish": 0, "Neutral": 1, "Agile": 2}[cmd]
-    return t, (p, r, y, h, m)
-
-def send_telemetry(conn, throttle, angles, height, pos, battery, warnings, logger=None):
-    if conn:
-        msg = "Roll:%.1f, Pitch:%.1f, Yaw:%.1f, Throttle:%d, Height:%.2f, X:%.2f, Y:%.2f, Battery:%d" % (
-            angles[0], angles[1], angles[2], throttle, height, pos[1], pos[2], battery
-        )
-        if warnings:
-            msg += ", Warnings:" + ";".join(warnings)
-        conn.send(msg.encode())
-        if logger:
-            logger.log(f"Telemetry sent: {msg}")
-
-def calibrate_trim(mpu, dt, duration=5, logger=None):
-    if logger:
-        logger.log(f"Starting auto-trim for {duration}s")
-    print("Auto-Trim... Keep stable for", duration, "s")
-    THROTTLE_HOVER = 65535 * 0.25
-    samples = []
-    start = utime.ticks_ms()
-    pos_x, pos_y, vel_x, vel_y = 0, 0, 0, 0
-    
-    while utime.ticks_diff(utime.ticks_ms(), start) / 1000 < duration:
-        ax, ay, _, _, _, _ = mpu.get_data()
-        vel_x += ax * 9.81 * dt * 0.99
-        vel_y += ay * 9.81 * dt * 0.99
-        pos_x += vel_x * dt
-        pos_y += vel_y * dt
-        samples.append((pos_x, pos_y))
-        set_motor_speeds(THROTTLE_HOVER, THROTTLE_HOVER, THROTTLE_HOVER, THROTTLE_HOVER)
-        utime.sleep(dt)
-    
-    set_motor_speeds(0, 0, 0, 0)
-    avg_x = sum(s[0] for s in samples) / len(samples)
-    avg_y = sum(s[1] for s in samples) / len(samples)
-    TRIM_STEP, MAX_TRIM = 100, 500
-    MOTOR_TRIM[0] = max(-MAX_TRIM, min(MAX_TRIM, int(-avg_y * TRIM_STEP)))
-    MOTOR_TRIM[1] = max(-MAX_TRIM, min(MAX_TRIM, int(-avg_x * TRIM_STEP)))
-    MOTOR_TRIM[2] = max(-MAX_TRIM, min(MAX_TRIM, int(avg_y * TRIM_STEP)))
-    MOTOR_TRIM[3] = max(-MAX_TRIM, min(MAX_TRIM, int(avg_x * TRIM_STEP)))
-    if logger:
-        logger.log(f"Trim completed: {MOTOR_TRIM}")
-    print("Trim:", MOTOR_TRIM)`,
-            'Setup': `logger = Logger(max_entries=50)
-i2c = I2C(0, scl=Pin(5), sda=Pin(4))
-mpu = MPU6050(i2c, logger=logger)
-if not mpu.calibrate():
-    print("ERROR: MPU6050 calibration failed. Restart and keep still.")
-    while True:
-        utime.sleep(1)
-
-pids = [PID(1.0, 0.05, 0.2), PID(1.0, 0.05, 0.2), PID(0.5, 0.01, 0.1), PID(2.0, 0.1, 0.5), PID(0.5, 0.01, 0.1), PID(0.5, 0.01, 0.1)]
-tcp_server = start_tcp_server()
-calibrate_trim(mpu, 0.01, logger=logger)
-modes = {0: (0.5, 0.01, 0.1), 1: (1.0, 0.05, 0.2), 2: (2.0, 0.1, 0.5)}
-brain = VirtualBrain(logger=logger)`,
-            'MainLoop': `throttle, targets = 0, (0, 0, 0, 0.5, 1)
-angles, pos, vel = [0, 0, 0], [0, 0, 0], [0, 0, 0]
-dt, telemetry_counter = 0.01, 0
-last_reset_check = utime.ticks_ms()
-RESET_CHECK_INTERVAL = 5000
-last_command_was_yaw = False
-
-while True:
-    start = utime.ticks_ms()
-    ax, ay, az, gx, gy, gz = mpu.get_data()
-    
-    if any(abs(g) > 250 for g in [gx, gy, gz]):
-        logger.log(f"Gyro saturation: {gx}, {gy}, {gz}")
-        print("WARNING: Gyro saturation detected:", [gx, gy, gz])
-        gx, gy, gz = [max(min(g, 250), -250) for g in [gx, gy, gz]]
-    
-    accel_angles = [math.atan2(ay, math.sqrt(ax*ax + az*az)) * 180/math.pi, math.atan2(ax, math.sqrt(ay*ay + az*az)) * 180/math.pi]
-    angles[0] = complementary_filter(accel_angles[0], gy, angles[0], dt)
-    angles[1] = complementary_filter(accel_angles[1], gx, angles[1], dt)
-    angles[2] += gz * dt
-    angles = [max(min(a, 90), -90) for a in angles]
-    
-    current_time = utime.ticks_ms()
-    if utime.ticks_diff(current_time, last_reset_check) > RESET_CHECK_INTERVAL:
-        if abs(angles[2]) > 0 and not last_command_was_yaw:
-            angles[2] = 0
-            logger.log("Yaw reset to 0° due to drift")
-            print("Yaw reset to 0° due to drift without command")
-        last_reset_check = current_time
-    
-    vel[0] = vel[0] * 0.95 + (az - 1) * 9.81 * dt
-    vel[1] = vel[1] * 0.95 + ax * 9.81 * dt
-    vel[2] = vel[2] * 0.95 + ay * 9.81 * dt
-    pos = [p + v * dt for p, v in zip(pos, vel)]
-    pos[0] = max(pos[0], 0)
-    pos = [max(min(p, 100), -100) for p in pos]
-    
-    brain.update(angles, vel, dt)
-    warnings = brain.troubleshoot(angles, vel, throttle, pids, dt)
-    
-    if throttle == 0:
-        pos, vel = [0, 0, 0], [0, 0, 0]
-        set_motor_speeds(0, 0, 0, 0)
-        utime.sleep_ms(50)
-    else:
-        conn = None
-        try:
-            conn, _ = tcp_server.accept()
-            data = conn.recv(1024).decode()
-            if data == "ping":
-                conn.send(b"pong")
-            elif data == "get_logs":
-                logs = logger.get_logs()
-                log_msg = "\n".join(f"[{t}] {m}" for t, m in logs)
-                conn.send(log_msg.encode())
-            else:
-                last_command_was_yaw = data in ["Yaw Left", "Yaw Right"]
-                throttle, targets = parse_command(data, throttle, targets)
-                send_telemetry(conn, throttle, angles, pos[0], pos[1:], get_battery_percentage(), warnings, logger)
-        except:
-            telemetry_counter += 1
-            if telemetry_counter >= 50:
-                send_telemetry(conn, throttle, angles, pos[0], pos[1:], get_battery_percentage(), warnings, logger)
-                telemetry_counter = 0
-        finally:
-            if conn is not None:
-                conn.close()
-        
-        kp, ki, kd = modes[targets[4]]
-        for i, pid in enumerate(pids[:3]): pid.set_gains(kp if i < 2 else kp/2, ki, kd)
-        pids[3].set_gains(2.0, 0.1, 0.5)
-        pids[4].set_gains(0.5, 0.01, 0.1)
-        pids[5].set_gains(0.5, 0.01, 0.1)
-        
-        outputs = [
-            pids[1].update(targets[0] - pids[5].update(0, pos[2], dt), angles[1], dt),
-            pids[0].update(targets[1] - pids[4].update(0, pos[1], dt), angles[0], dt),
-            pids[2].update(targets[2], angles[2], dt),
-            pids[3].update(targets[3], pos[0], dt)
-        ]
-        
-        base = max((throttle * 65535 / 100) + outputs[3], 65535 * 0.25)
-        set_motor_speeds(
-            base + outputs[0] + outputs[1] + outputs[2],
-            base + outputs[0] - outputs[1] - outputs[2],
-            base - outputs[0] + outputs[1] - outputs[2],
-            base - outputs[0] - outputs[1] + outputs[2]
-        )
-    
-    elapsed = utime.ticks_diff(utime.ticks_ms(), start) / 1000
-    if elapsed < dt:
-        sleep_time = dt - elapsed
-        if sleep_time > 0:
-            utime.sleep(sleep_time)`
-        };
-
-        // Tab Component
         function Tab({ label, isActive, onClick }) {
             return (
                 <button
@@ -469,7 +45,6 @@ while True:
             );
         }
 
-        // Tabs Component
         function Tabs({ activeTab, onTabChange }) {
             const tabOrder = ['Imports', 'Logger', 'MPU6050', 'PID', 'VirtualBrain', 'MotorControl', 'BatteryMonitoring', 'TCPServer', 'Utilities', 'Setup', 'MainLoop'];
             return (
@@ -489,7 +64,6 @@ while True:
             );
         }
 
-        // Animation Window
         function AnimationWindow({ status }) {
             let animation = null;
             if (status === 'Uploading...' || status === 'Building...' || status === 'Checking Drone...' || status === 'Creating Simulation...') {
@@ -515,7 +89,6 @@ while True:
                     </div>
                 );
             }
-
             return (
                 <div className="bg-gray-900 p-6 futuristic-border h-[150px] flex flex-col justify-center items-center scan-effect">
                     <h2 className="text-xl font-bold mb-4 text-[#00FFFF]">SYSTEM STATUS</h2>
@@ -524,7 +97,6 @@ while True:
             );
         }
 
-        // Simulation Window with Circular Artificial Horizon and Gamepad Controls
         function SimulationWindow({ selectedType, selectedValue, isSimulating, setIsSimulating, angles, setAngles, height, setHeight }) {
             const canvasRef = React.useRef(null);
 
@@ -540,36 +112,29 @@ while True:
 
                 const drawHorizon = (roll = 0, pitch = 0, yaw = 0) => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                     ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, radius * 0.8, 0, Math.PI * 2);
                     ctx.stroke();
-
                     ctx.save();
                     ctx.translate(centerX, centerY);
                     ctx.rotate(roll * Math.PI / 180);
                     ctx.rotate(pitch * Math.PI / 180);
-
                     const horizonRadius = radius * 0.7;
-
                     ctx.fillStyle = 'rgb(0, 191, 255)';
                     ctx.beginPath();
                     ctx.arc(0, 0, horizonRadius, 0, Math.PI, true);
                     ctx.fill();
-
                     ctx.fillStyle = 'rgb(139, 69, 19)';
                     ctx.beginPath();
                     ctx.arc(0, 0, horizonRadius, 0, Math.PI, false);
                     ctx.fill();
-
                     ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.arc(0, 0, horizonRadius, 0, Math.PI * 2);
                     ctx.stroke();
-
                     ctx.lineWidth = 1;
                     for (let i = -90; i <= 90; i += 10) {
                         const baseAngle = (i / 90) * Math.PI / 2;
@@ -591,9 +156,7 @@ while True:
                             ctx.restore();
                         }
                     }
-
                     ctx.restore();
-
                     ctx.fillStyle = 'rgb(0, 255, 255)';
                     ctx.font = '16px monospace';
                     ctx.textAlign = 'center';
@@ -655,7 +218,6 @@ while True:
             );
         }
 
-        // Main App
         function App() {
             const [editorContent, setEditorContent] = React.useState('');
             const [status, setStatus] = React.useState('Checking Drone...');
@@ -669,62 +231,87 @@ while True:
             const editorRef = React.useRef(null);
 
             React.useEffect(() => {
-                // Check drone server availability
-                async function checkDroneServer() {
+                let isMounted = true;
+
+                async function initialize() {
                     try {
-                        await axios.get('http://localhost:3000/code/Imports');
-                        setStatus('Server detected');
+                        const response = await axios.get('http://localhost:3000/code/Imports', { timeout: 5000 });
+                        if (isMounted && response.data.success) {
+                            setStatus('Server detected');
+                            setEditorContent(response.data.code);
+                            window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' } });
+                            window.require(['vs/editor/editor.main'], () => {
+                                if (!isMounted || !document.getElementById('editor')) return;
+                                if (editorRef.current) editorRef.current.dispose();
+                                editorRef.current = monaco.editor.create(document.getElementById('editor'), {
+                                    value: response.data.code,
+                                    language: 'python',
+                                    theme: 'vs-dark',
+                                    automaticLayout: true,
+                                    fontFamily: 'monospace',
+                                    fontSize: 14,
+                                    lineNumbers: 'on',
+                                    minimap: { enabled: false }
+                                });
+                                editorRef.current.onDidChangeModelContent(() => {
+                                    setEditorContent(editorRef.current.getValue());
+                                });
+                            }, (err) => {
+                                console.error('Error loading Monaco Editor:', err);
+                                if (isMounted) setStatus('Error: Editor failed to load');
+                            });
+                        } else {
+                            throw new Error('Invalid response from server');
+                        }
                     } catch (error) {
-                        setStatus('Drone server not reachable');
-                        console.error('Server check failed:', error);
+                        if (isMounted) {
+                            setStatus(`Drone server not reachable: ${error.message}`);
+                            console.error('Server check failed:', error);
+                        }
                     }
                 }
-                checkDroneServer();
+                initialize();
 
-                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' } });
-                require(['vs/editor/editor.main'], function() {
-                    if (!window.monaco || !document.getElementById('editor')) {
-                        console.error('Monaco Editor or editor div failed to load');
-                        return;
-                    }
-                    if (editorRef.current) editorRef.current.dispose();
-                    editorRef.current = monaco.editor.create(document.getElementById('editor'), {
-                        value: editorContent,
-                        language: 'python',
-                        theme: 'vs-dark',
-                        automaticLayout: true,
-                        fontFamily: 'monospace',
-                        fontSize: 14,
-                        lineNumbers: 'on',
-                        minimap: { enabled: false }
-                    });
-                    editorRef.current.onDidChangeModelContent(() => {
-                        setEditorContent(editorRef.current.getValue());
-                    });
-                }, (err) => {
-                    console.error('Error loading Monaco Editor:', err);
-                });
-            }, [editorContent]);
-
-            const handleTabChange = (tab) => {
-                setActiveTab(tab);
-                const currentContent = editorContent || '';
-                const newContent = codeBlocks[tab];
-                if (!currentContent.includes(newContent)) {
-                    setEditorContent(prevContent => prevContent + (prevContent ? '\n\n' : '') + newContent);
+                return () => {
+                    isMounted = false;
                     if (editorRef.current) {
-                        editorRef.current.setValue(currentContent + (currentContent ? '\n\n' : '') + newContent);
+                        editorRef.current.dispose();
+                        editorRef.current = null;
                     }
+                };
+            }, []);
+
+            const handleTabChange = async (tab) => {
+                setActiveTab(tab);
+                try {
+                    const response = await axios.get(`http://localhost:3000/code/${tab}`, { timeout: 5000 });
+                    console.log(`Response for ${tab}:`, response.data); // Debug response
+                    if (response.data.success) {
+                        const newContent = response.data.code;
+                        const currentContent = editorContent || '';
+                        if (!currentContent.includes(newContent)) {
+                            const updatedContent = currentContent + (currentContent ? '\n\n' : '') + newContent;
+                            setEditorContent(updatedContent);
+                            if (editorRef.current) {
+                                editorRef.current.setValue(updatedContent);
+                                console.log(`Editor updated with ${tab} code`);
+                            } else {
+                                console.error('Editor not initialized yet');
+                            }
+                        }
+                    } else {
+                        console.error(`Failed to fetch code for tab ${tab}:`, response.data.error);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching code for tab ${tab}:`, error);
                 }
             };
 
             const uploadCode = async () => {
                 setStatus('Uploading...');
                 try {
-                    const fullCode = editorContent || Object.values(codeBlocks).join('\n\n');
-                    const response = await axios.post('http://192.168.4.1:8080/upload', fullCode, {
-                        timeout: 5000,
-                    });
+                    const fullCode = editorContent;
+                    const response = await axios.post('http://192.168.4.1:8080/upload', fullCode, { timeout: 5000 });
                     setStatus('Code uploaded');
                 } catch (error) {
                     setStatus(`Error: ${error.message || 'Network issue or server unavailable'}`);
@@ -737,8 +324,9 @@ while True:
                 setStatus('Building...');
                 setBuildOutput('');
                 try {
-                    const fullCode = editorContent || Object.values(codeBlocks).join('\n\n');
-                    const response = await axios.post('http://localhost:3000/build', { customCode: fullCode });
+                    const fullCode = editorContent;
+                    const response = await axios.post('http://localhost:3000/build', { customCode: fullCode }, { timeout: 5000 });
+                    console.log('Build response:', response.data); // Debug build response
                     if (response.data.success) {
                         setBuildOutput(`Build successful:\n${response.data.output}`);
                     } else {
@@ -818,19 +406,6 @@ while True:
             );
         }
 
-        // Expose setAngles and setHeight for external use
-        window.setAngles = (newAngles) => {
-            const root = ReactDOM.createRoot(document.getElementById('root'));
-            root.render(<App />);
-        };
-        window.setHeight = (newHeight) => {
-            const root = ReactDOM.createRoot(document.getElementById('root'));
-            root.render(<App />);
-        };
-        window.angles = [0, 0, 0];
-        window.height = 0;
-
-        // Render
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
