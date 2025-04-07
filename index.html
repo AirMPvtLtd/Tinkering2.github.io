@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AIRM Drone Command</title>
+    <title>AIRM Drone Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -66,13 +66,13 @@
 
         function AnimationWindow({ status }) {
             let animation = null;
-            if (status === 'Uploading...' || status === 'Building...' || status === 'Checking Drone...' || status === 'Creating Simulation...') {
+            if (status === 'Uploading...' || status === 'Building...' || status === 'Creating Simulation...') {
                 animation = (
                     <div className="flex justify-center items-center h-full">
                         <div className="w-12 h-12 border-4 border-[#00FFFF] border-t-transparent rounded-full animate-[spin_1s_linear_infinite]"></div>
                     </div>
                 );
-            } else if (status === 'Code uploaded' || status === 'Simulation Created') {
+            } else if (status === 'Code Uploaded' || status === 'Build Completed' || status === 'Simulation Created') {
                 animation = (
                     <div className="flex justify-center items-center h-full">
                         <svg className="w-12 h-12 text-[#00FF00] animate-[pulse_1s_ease-in-out_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@
                         </svg>
                     </div>
                 );
-            } else if (status.startsWith('Error') || status === 'Drone server not reachable') {
+            } else if (status === 'Build Failed' || status === 'Drone Not Connected' || status === 'First Build the Code' || status === 'Drone Server Not Reachable' || status.startsWith('Error')) {
                 animation = (
                     <div className="flex justify-center items-center h-full">
                         <svg className="w-12 h-12 text-red-500 animate-[pulse_1s_ease-in-out_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +228,7 @@
             const [activeTab, setActiveTab] = React.useState('Imports');
             const [angles, setAngles] = React.useState([0, 0, 0]);
             const [height, setHeight] = React.useState(0);
-            const [lastBuiltCode, setLastBuiltCode] = React.useState(localStorage.getItem('lastBuiltCode') || ''); // Load from localStorage on init
+            const [lastBuiltCode, setLastBuiltCode] = React.useState(localStorage.getItem('lastBuiltCode') || '');
             const editorRef = React.useRef(null);
 
             React.useEffect(() => {
@@ -238,7 +238,7 @@
                     try {
                         const response = await axios.get('http://localhost:3000/code/Imports', { timeout: 5000 });
                         if (isMounted && response.data.success) {
-                            setStatus('Server detected');
+                            setStatus('Server Detected');
                             setEditorContent(response.data.code);
                             window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' } });
                             window.require(['vs/editor/editor.main'], () => {
@@ -259,14 +259,14 @@
                                 });
                             }, (err) => {
                                 console.error('Error loading Monaco Editor:', err);
-                                if (isMounted) setStatus('Error: Editor failed to load');
+                                if (isMounted) setStatus('Error: Editor Failed to Load');
                             });
                         } else {
                             throw new Error('Invalid response from server');
                         }
                     } catch (error) {
                         if (isMounted) {
-                            setStatus(`Drone server not reachable: ${error.message}`);
+                            setStatus(`Drone Server Not Reachable: ${error.message}`);
                             console.error('Server check failed:', error);
                         }
                     }
@@ -310,15 +310,16 @@
 
             const uploadCode = async () => {
                 if (!lastBuiltCode) {
-                    setStatus('Error: No successfully built code to deploy');
+                    setStatus('First Build the Code');
                     return;
                 }
                 setStatus('Uploading...');
                 try {
                     const response = await axios.post('http://192.168.4.1:8080/upload', lastBuiltCode, { timeout: 5000 });
-                    setStatus('Code uploaded');
+                    setStatus('Code Uploaded');
                 } catch (error) {
-                    setStatus(`Error: ${error.message || 'Drone not reachable'}`);
+                    setStatus('Drone Not Connected');
+                    console.error('Upload failed:', error);
                 } finally {
                     setTimeout(() => setStatus('OPERATIONAL'), 2000);
                 }
@@ -333,21 +334,24 @@
                     console.log('Build response:', response.data);
                     if (response.data.success) {
                         setBuildOutput(`Build successful:\n${response.data.output}`);
-                        setLastBuiltCode(fullCode); // Store successful code in state
-                        localStorage.setItem('lastBuiltCode', fullCode); // Store in localStorage
+                        setLastBuiltCode(fullCode);
+                        localStorage.setItem('lastBuiltCode', fullCode);
+                        setStatus('Build Completed');
                     } else {
                         setBuildOutput(`Build failed:\n${response.data.error}`);
+                        setStatus('Build Failed');
                     }
                 } catch (error) {
                     setBuildOutput(`Error: ${error.message || 'Server unavailable'}`);
+                    setStatus('Error: Network Issue');
                 } finally {
-                    setTimeout(() => setStatus('Server detected'), 2000);
+                    setTimeout(() => setStatus('Server Detected'), 2000);
                 }
             };
 
             const createSimulation = async () => {
                 if (buildOutput.startsWith('Error') || buildOutput === '') {
-                    setStatus('Error: Build code first without errors');
+                    setStatus('First Build the Code');
                     return;
                 }
                 setStatus('Creating Simulation...');
@@ -362,7 +366,7 @@
             return (
                 <div className="container mx-auto p-6">
                     <h1 className="text-4xl font-bold text-center mb-8 text-[#00FFFF] tracking-wider animate-[pulse_3s_infinite]">
-                        AIRM DRONE COMMAND
+                        AIRM DRONE COMMAND CENTER
                     </h1>
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="md:w-2/3">
