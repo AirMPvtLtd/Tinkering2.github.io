@@ -228,6 +228,7 @@
             const [activeTab, setActiveTab] = React.useState('Imports');
             const [angles, setAngles] = React.useState([0, 0, 0]);
             const [height, setHeight] = React.useState(0);
+            const [lastBuiltCode, setLastBuiltCode] = React.useState(localStorage.getItem('lastBuiltCode') || ''); // Load from localStorage on init
             const editorRef = React.useRef(null);
 
             React.useEffect(() => {
@@ -285,7 +286,7 @@
                 setActiveTab(tab);
                 try {
                     const response = await axios.get(`http://localhost:3000/code/${tab}`, { timeout: 5000 });
-                    console.log(`Response for ${tab}:`, response.data); // Debug response
+                    console.log(`Response for ${tab}:`, response.data);
                     if (response.data.success) {
                         const newContent = response.data.code;
                         const currentContent = editorContent || '';
@@ -308,15 +309,18 @@
             };
 
             const uploadCode = async () => {
+                if (!lastBuiltCode) {
+                    setStatus('Error: No successfully built code to deploy');
+                    return;
+                }
                 setStatus('Uploading...');
                 try {
-                    const fullCode = editorContent;
-                    const response = await axios.post('http://192.168.4.1:8080/upload', fullCode, { timeout: 5000 });
+                    const response = await axios.post('http://192.168.4.1:8080/upload', lastBuiltCode, { timeout: 5000 });
                     setStatus('Code uploaded');
                 } catch (error) {
-                    setStatus(`Error: ${error.message || 'Network issue or server unavailable'}`);
+                    setStatus(`Error: ${error.message || 'Drone not reachable'}`);
                 } finally {
-                    setTimeout(() => setStatus('Server detected'), 2000);
+                    setTimeout(() => setStatus('OPERATIONAL'), 2000);
                 }
             };
 
@@ -326,9 +330,11 @@
                 try {
                     const fullCode = editorContent;
                     const response = await axios.post('http://localhost:3000/build', { customCode: fullCode }, { timeout: 5000 });
-                    console.log('Build response:', response.data); // Debug build response
+                    console.log('Build response:', response.data);
                     if (response.data.success) {
                         setBuildOutput(`Build successful:\n${response.data.output}`);
+                        setLastBuiltCode(fullCode); // Store successful code in state
+                        localStorage.setItem('lastBuiltCode', fullCode); // Store in localStorage
                     } else {
                         setBuildOutput(`Build failed:\n${response.data.error}`);
                     }
@@ -390,16 +396,22 @@
                     </div>
                     <div className="flex justify-center gap-6 mt-6">
                         <AnimationWindow status={status} />
-                        <div className="flex items-center gap-4">
-                            <button onClick={startSimulation}
-                                className="bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold py-3 px-6 rounded-lg futuristic-border animate-[pulse_2s_infinite]"
-                                disabled={buildOutput.startsWith('Error') || buildOutput === ''}>
-                                SIMULATE
-                            </button>
-                            <button onClick={uploadCode}
-                                className="bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold py-3 px-6 rounded-lg futuristic-border animate-[pulse_2s_infinite]">
-                                DEPLOY PROTOCOL
-                            </button>
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="flex gap-4">
+                                <button onClick={startSimulation}
+                                    className="bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold py-3 px-6 rounded-lg futuristic-border animate-[pulse_2s_infinite]"
+                                    disabled={buildOutput.startsWith('Error') || buildOutput === ''}>
+                                    SIMULATE
+                                </button>
+                                <button onClick={uploadCode}
+                                    className="bg-[#00FF00] hover:bg-[#00CC00] text-black font-bold py-3 px-6 rounded-lg futuristic-border animate-[pulse_2s_infinite]"
+                                    disabled={!lastBuiltCode}>
+                                    DEPLOY PROTOCOL
+                                </button>
+                            </div>
+                            <p className="text-sm text-[#00FFFF] italic">
+                                *Note: Before transferring the code to the drone, please connect to the drone WiFi network.
+                            </p>
                         </div>
                     </div>
                 </div>
